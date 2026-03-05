@@ -40,7 +40,7 @@ docker compose up -d --force-recreate
 Run the smoke test suite from the repository root:
 
 ```bash
-./tests/smoke-test.sh
+python -m unittest discover -s tests -p "test_*.py"
 ```
 
 This validates:
