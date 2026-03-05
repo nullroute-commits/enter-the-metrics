@@ -38,7 +38,8 @@ class ComposeSmokeTests(unittest.TestCase):
 
     def test_expected_services_are_defined(self) -> None:
         output = self.run_compose("config", "--services").stdout
-        services = {line.strip() for line in output.splitlines() if line.strip()}
+        stripped_lines = [line.strip() for line in output.splitlines()]
+        services = {line for line in stripped_lines if line}
         self.assertTrue(
             EXPECTED_SERVICES.issubset(services),
             f"Missing services: {sorted(EXPECTED_SERVICES - services)}",
