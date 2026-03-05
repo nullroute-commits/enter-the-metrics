@@ -1,5 +1,3 @@
-version: '3.3'
-
 networks:
   loki: {}
 
@@ -15,6 +13,7 @@ services:
       - GF_ANALYTICS_CHECK_FOR_UPDATES=true
       - GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES=true
     image: grafana/grafana:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -36,6 +35,7 @@ services:
     - --web.enable-lifecycle
     container_name: prometheus
     image: prom/prometheus:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -49,6 +49,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yml
     container_name: loki
     image: grafana/loki:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -63,6 +64,7 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     container_name: promtail
     image: grafana/promtail:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -82,6 +84,7 @@ services:
     depends_on:
     - promtail
     image: balabit/syslog-ng:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -107,6 +110,7 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     container_name: node-exporter
     image: prom/node-exporter:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
@@ -117,6 +121,7 @@ services:
   snmp-exporter:
     container_name: snmp-exporter
     image: prom/snmp-exporter:latest
+    pull_policy: always
     volumes:
     - ./snmp-exporter/config:/config
     command:
@@ -130,6 +135,7 @@ services:
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
+    pull_policy: always
     networks:
       loki: null
     ports:
