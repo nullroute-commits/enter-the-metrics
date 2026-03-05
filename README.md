@@ -31,7 +31,8 @@ One line explanation of each service does:
 Start up the stack with:
 
 ```
-docker-compose up -d --force-recreate
+docker compose pull
+docker compose up -d --force-recreate
 ```
 
 ## Login
@@ -204,13 +205,14 @@ chown -R grafana:grafana /usr/share/grafana
 ## Starting from a Clean Slate
 
 
-If you've already run `docker-compose up` on this repository, there will be some data files created that will persist your current state. If you want to start from a clean slate do the following:
+If you've already run `docker compose up` on this repository, there will be some data files created that will persist your current state. If you want to start from a clean slate do the following:
 
-1. `docker-compose down`
+1. `docker compose down`
 1. Delete the `grafana/data/grafana.db` file (`rm grafana/data/grafana.db`)
 
 Now you should be able to run up the stack again and start with the defaults:
 
 ```
-docker-compose up -d --force-recreate
+docker compose pull
+docker compose up -d --force-recreate
 ```
