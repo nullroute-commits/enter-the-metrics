@@ -35,6 +35,19 @@ docker compose pull
 docker compose up -d --force-recreate
 ```
 
+## Testing
+
+Run the smoke test suite from the repository root:
+
+```bash
+./tests/smoke-test.sh
+```
+
+This validates:
+- compose configuration integrity
+- expected service definitions
+- presence of required local configuration files
+
 ## Login
 
 The default login is `admin`/`admin`. You can change the password to whatever you like after that.
