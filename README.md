@@ -171,10 +171,10 @@ For example to query your Grafana metrics hit: `http://<host ip running grafana>
 
 ## CI/CD
 
-This repository includes GitHub Actions workflows for continuous integration and deployment:
+This repository includes GitHub Actions workflows for continuous integration and deployment. All CI/CD steps run inside Docker containers — no host-level language runtimes are required.
 
-- **CI** (`.github/workflows/ci.yml`): Runs on every push and pull request to `main`. Validates the Docker Compose configuration and runs the smoke test suite.
-- **Deploy** (`.github/workflows/deploy.yml`): Runs automatically on push to `main` or can be triggered manually. Copies the stack files to a remote host and deploys via `docker compose up`.
+- **CI** (`.github/workflows/ci.yml`): Runs on every push and pull request to `main`. Validates the Docker Compose configuration and runs the smoke test suite inside a `docker:cli` container.
+- **Deploy** (`.github/workflows/deploy.yml`): Runs automatically on push to `main` or can be triggered manually. Uses a `docker:cli` container to sync stack files to the remote host via `rsync` over SSH and deploys with `docker compose up`.
 
 ### Deployment Setup
 
