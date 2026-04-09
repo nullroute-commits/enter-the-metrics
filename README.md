@@ -1,5 +1,7 @@
 # Metrics Stack
 
+[![CI](https://github.com/nullroute-commits/enter-the-metrics/actions/workflows/ci.yml/badge.svg)](https://github.com/nullroute-commits/enter-the-metrics/actions/workflows/ci.yml)
+
 Installs and configures the following services to work together:
 
 - [Grafana](https://grafana.com/) `13.0.0`
@@ -166,6 +168,26 @@ For example to query your Grafana metrics hit: `http://<host ip running grafana>
 | snmp_exporter| [Web](http://localhost:9116/), [Metrics](http://localhost:9116/metrics) | - |
 | syslog-ng| - | udp 514, tcp 601 |
 
+
+## CI/CD
+
+This repository includes GitHub Actions workflows for continuous integration and deployment:
+
+- **CI** (`.github/workflows/ci.yml`): Runs on every push and pull request to `main`. Validates the Docker Compose configuration and runs the smoke test suite.
+- **Deploy** (`.github/workflows/deploy.yml`): Runs automatically on push to `main` or can be triggered manually. Copies the stack files to a remote host and deploys via `docker compose up`.
+
+### Deployment Setup
+
+To enable automated deployments, configure the following secrets in your GitHub repository settings (**Settings → Secrets and variables → Actions**):
+
+| Secret | Description |
+| ------ | ----------- |
+| `DEPLOY_HOST` | Hostname or IP of the target server |
+| `DEPLOY_USER` | SSH username on the target server |
+| `DEPLOY_SSH_KEY` | Private SSH key for authentication |
+| `DEPLOY_PATH` | Absolute path on the server where the stack will be deployed |
+
+You must also create a GitHub [environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) called **production** in **Settings → Environments** for the deploy workflow to run against.
 
 ## Issues
 

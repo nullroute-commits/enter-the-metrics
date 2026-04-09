@@ -1,0 +1,37 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Stack
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose configuration
+        run: docker compose config --quiet
+
+      - name: Copy files to remote host
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "docker-compose.yml,grafana/,prometheus/,loki/,alloy/,syslog-ng/,snmp-exporter/"
+          target: ${{ secrets.DEPLOY_PATH }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            docker compose pull
+            docker compose up -d --force-recreate --remove-orphans
