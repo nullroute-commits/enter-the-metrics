@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint Compose Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose configuration
+        run: >
+          docker run --rm
+          -v "${{ github.workspace }}:/workspace"
+          -w /workspace
+          docker:cli
+          sh -c "apk add --no-cache docker-cli-compose >/dev/null 2>&1
+          && docker compose config --quiet"
+
+  test:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run smoke tests in Docker
+        run: >
+          docker run --rm
+          -v "${{ github.workspace }}:/workspace"
+          -v /var/run/docker.sock:/var/run/docker.sock
+          -w /workspace
+          docker:cli
+          sh -c "apk add --no-cache python3 docker-cli-compose >/dev/null 2>&1
+          && python3 -m unittest discover -s tests -p 'test_*.py' -v"

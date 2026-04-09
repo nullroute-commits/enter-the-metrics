@@ -1,15 +1,17 @@
 # Metrics Stack
 
+[![CI](https://github.com/nullroute-commits/enter-the-metrics/actions/workflows/ci.yml/badge.svg)](https://github.com/nullroute-commits/enter-the-metrics/actions/workflows/ci.yml)
+
 Installs and configures the following services to work together:
 
-- [Grafana](https://grafana.com/)
-- [Prometheus](https://prometheus.io/)
-- [Loki](https://grafana.com/docs/loki/latest/)
-- [Promtail](https://grafana.com/docs/loki/latest/clients/promtail/)
-- [syslog-ng](https://www.syslog-ng.com/)
-- [snmp_exporter](https://github.com/prometheus/snmp_exporter)
-- [node_exporter](https://github.com/prometheus/node_exporter)
-- [cAdvisor](https://github.com/google/cadvisor)
+- [Grafana](https://grafana.com/) `12.4.2`
+- [Prometheus](https://prometheus.io/) `v3.11.0`
+- [Loki](https://grafana.com/docs/loki/latest/) `3.7.1`
+- [Alloy](https://grafana.com/docs/alloy/latest/) `v1.15.0`
+- [syslog-ng](https://www.syslog-ng.com/) `4.11.0`
+- [snmp_exporter](https://github.com/prometheus/snmp_exporter) `v0.30.1`
+- [node_exporter](https://github.com/prometheus/node_exporter) `v1.11.1`
+- [cAdvisor](https://github.com/google/cadvisor) `v0.52.1`
 
 
 
@@ -18,10 +20,10 @@ One line explanation of each service does:
 - **Grafana**: Visualising your metrics in dashboards. Sources data from many datasources (eg. Prometheus, Loki, InfluxDB)
 - **Prometheus**: Collecting metric data
 - **Loki**: Collecting metric data related to logs
-- **Promtail**: Log agent that sends logs to Loki in a format it can parse
-- **syslog-ng**: Syslog forwarder (sends logs to Promtail)
+- **Alloy**: Telemetry collector that sends logs to Loki (replaces the deprecated Promtail agent)
+- **syslog-ng**: Syslog forwarder (sends logs to Alloy)
 - **node_exporter**: Exposes a system's metrics (cpu, ram, network, disc etc) to Prometheus
-- **snmp_exporter**: Forwards SNMP traffic from SNMP devices to Promethues
+- **snmp_exporter**: Forwards SNMP traffic from SNMP devices to Prometheus
 - **cAdvisor**: Sends Docker container metrics to Prometheus
 
 *This repo is inspired by the excellent work done in* [grafana-loki-syslog-aio](https://github.com/lux4rd0/grafana-loki-syslog-aio).
@@ -149,9 +151,9 @@ To forward syslogs to syslog-ng, set the following as the syslog server in the s
 
 ## General Information
 
-To test any service exposing metrics to Promethues, you can query there `/metrics` endpoint.
+To test any service exposing metrics to Prometheus, you can query their `/metrics` endpoint.
 
-For example to query your Grafana metrics hit: `http://<host ip running grafan>:3000/metrics`
+For example to query your Grafana metrics hit: `http://<host ip running grafana>:3000/metrics`
 
 ## Service Endpoints
 
@@ -160,12 +162,32 @@ For example to query your Grafana metrics hit: `http://<host ip running grafan>:
 | Grafana| [Web](http://localhost:3000), [Metrics](http://localhost:3000/metrics) | - |
 | Prometheus| [Web](http://localhost:9090), [Metrics](http://localhost:9090/metrics) | - |
 | Loki| [Web](http://localhost:3100/ready), [Metrics](http://localhost:3100/metrics) | - |
-| Promtail| [Web](http://localhost:9080), [Metrics](http://localhost:9080/metrics) | tcp 1514 |
+| Alloy| [Web](http://localhost:12345), [Metrics](http://localhost:12345/metrics) | tcp 1514 |
 | node_exporter| [Web](http://localhost:9100/), [Metrics](http://localhost:9100/metrics) | - |
 | cAdvisor| [Web](http://localhost:8080/), [Metrics](http://localhost:8080/metrics) | - |
 | snmp_exporter| [Web](http://localhost:9116/), [Metrics](http://localhost:9116/metrics) | - |
 | syslog-ng| - | udp 514, tcp 601 |
 
+
+## CI/CD
+
+This repository includes GitHub Actions workflows for continuous integration and deployment. All CI/CD steps run inside Docker containers — no host-level language runtimes are required.
+
+- **CI** (`.github/workflows/ci.yml`): Runs on every push and pull request to `main`. Validates the Docker Compose configuration and runs the smoke test suite inside a `docker:cli` container.
+- **Deploy** (`.github/workflows/deploy.yml`): Runs automatically on push to `main` or can be triggered manually. Uses a `docker:cli` container to sync stack files to the remote host via `rsync` over SSH and deploys with `docker compose up`.
+
+### Deployment Setup
+
+To enable automated deployments, configure the following secrets in your GitHub repository settings (**Settings → Secrets and variables → Actions**):
+
+| Secret | Description |
+| ------ | ----------- |
+| `DEPLOY_HOST` | Hostname or IP of the target server |
+| `DEPLOY_USER` | SSH username on the target server |
+| `DEPLOY_SSH_KEY` | Private SSH key for authentication |
+| `DEPLOY_PATH` | Absolute path on the server where the stack will be deployed |
+
+You must also create a GitHub [environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) called **production** in **Settings → Environments** for the deploy workflow to run against.
 
 ## Issues
 

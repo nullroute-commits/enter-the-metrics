@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Stack
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose configuration
+        run: >
+          docker run --rm
+          -v "${{ github.workspace }}:/workspace"
+          -w /workspace
+          docker:cli
+          sh -c "apk add --no-cache docker-cli-compose >/dev/null 2>&1
+          && docker compose config --quiet"
+
+      - name: Copy files and deploy via SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            -e DEPLOY_SSH_KEY \
+            -e DEPLOY_HOST \
+            -e DEPLOY_USER \
+            -e DEPLOY_PATH \
+            docker:cli \
+            sh -c '
+              apk add --no-cache openssh-client rsync >/dev/null 2>&1
+              mkdir -p ~/.ssh && chmod 700 ~/.ssh
+              printf "%s\n" "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+              chmod 600 ~/.ssh/id_ed25519
+              ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+              rsync -az --delete \
+                -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new" \
+                docker-compose.yml grafana/ prometheus/ loki/ alloy/ syslog-ng/ snmp-exporter/ \
+                "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+
+              ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new \
+                "${DEPLOY_USER}@${DEPLOY_HOST}" \
+                "cd ${DEPLOY_PATH} && docker compose pull && docker compose up -d --force-recreate --remove-orphans"
+            '
