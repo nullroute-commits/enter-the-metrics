@@ -4,14 +4,14 @@
 
 Installs and configures the following services to work together:
 
-- [Grafana](https://grafana.com/) `13.0.0`
+- [Grafana](https://grafana.com/) `12.4.2`
 - [Prometheus](https://prometheus.io/) `v3.11.0`
 - [Loki](https://grafana.com/docs/loki/latest/) `3.7.1`
 - [Alloy](https://grafana.com/docs/alloy/latest/) `v1.15.0`
 - [syslog-ng](https://www.syslog-ng.com/) `4.11.0`
 - [snmp_exporter](https://github.com/prometheus/snmp_exporter) `v0.30.1`
 - [node_exporter](https://github.com/prometheus/node_exporter) `v1.11.1`
-- [cAdvisor](https://github.com/google/cadvisor) `v0.56.2`
+- [cAdvisor](https://github.com/google/cadvisor) `v0.52.1`
 
 
 
