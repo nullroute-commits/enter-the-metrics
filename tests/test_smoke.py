@@ -8,7 +8,7 @@ EXPECTED_SERVICES = {
     "grafana",
     "prometheus",
     "loki",
-    "promtail",
+    "alloy",
     "syslog-ng",
     "node-exporter",
     "snmp-exporter",
@@ -17,7 +17,7 @@ EXPECTED_SERVICES = {
 REQUIRED_FILES = [
     "prometheus/config/prometheus.yml",
     "loki/config/loki-config.yml",
-    "promtail/config/promtail-config.yml",
+    "alloy/config/config.alloy",
     "syslog-ng/config/syslog-ng.conf",
     "snmp-exporter/config/snmp.yml",
 ]

@@ -12,7 +12,7 @@ services:
       - GF_ANALYTICS_REPORTING_ENABLED=false
       - GF_ANALYTICS_CHECK_FOR_UPDATES=true
       - GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES=true
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.0.0
     pull_policy: always
     networks:
       loki: null
@@ -34,7 +34,7 @@ services:
     - --web.enable-admin-api
     - --web.enable-lifecycle
     container_name: prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.11.0
     pull_policy: always
     networks:
       loki: null
@@ -48,7 +48,7 @@ services:
   loki:
     command: -config.file=/etc/loki/loki-config.yml
     container_name: loki
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.1
     pull_policy: always
     networks:
       loki: null
@@ -60,10 +60,13 @@ services:
     volumes:
     - ./loki/config/loki-config.yml:/etc/loki/loki-config.yml:ro
 
-  promtail:
-    command: -config.file=/etc/promtail/promtail-config.yml
-    container_name: promtail
-    image: grafana/promtail:latest
+  alloy:
+    command:
+    - run
+    - /etc/alloy/config.alloy
+    - --server.http.listen-addr=0.0.0.0:12345
+    container_name: alloy
+    image: grafana/alloy:v1.15.0
     pull_policy: always
     networks:
       loki: null
@@ -72,18 +75,18 @@ services:
       published: 1514
       target: 1514
     - protocol: tcp
-      published: 9080
-      target: 9080
+      published: 12345
+      target: 12345
     restart: always
     volumes:
-    - ./promtail/config/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+    - ./alloy/config/config.alloy:/etc/alloy/config.alloy:ro
 
   syslog-ng:
     command: -edv
     container_name: syslog-ng
     depends_on:
-    - promtail
-    image: balabit/syslog-ng:latest
+    - alloy
+    image: balabit/syslog-ng:4.11.0
     pull_policy: always
     networks:
       loki: null
@@ -109,7 +112,7 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     container_name: node-exporter
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.11.1
     pull_policy: always
     networks:
       loki: null
@@ -120,7 +123,7 @@ services:
 
   snmp-exporter:
     container_name: snmp-exporter
-    image: prom/snmp-exporter:latest
+    image: prom/snmp-exporter:v0.30.1
     pull_policy: always
     volumes:
     - ./snmp-exporter/config:/config
@@ -134,7 +137,7 @@ services:
 
   cadvisor:
     container_name: cadvisor
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: ghcr.io/google/cadvisor:v0.56.2
     pull_policy: always
     networks:
       loki: null
