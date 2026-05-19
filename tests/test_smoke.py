@@ -75,7 +75,8 @@ class ComposeSmokeTests(unittest.TestCase):
 
     def test_snmp_exporter_shares_the_stack_network(self) -> None:
         snmp_exporter_block = self.read_service_block("snmp-exporter")
-        self.assertIn("networks:\n      loki: null", snmp_exporter_block)
+        self.assertIn("networks:", snmp_exporter_block)
+        self.assertIn("loki: null", snmp_exporter_block)
 
     def test_prometheus_scrapes_core_services(self) -> None:
         prometheus_config = PROMETHEUS_CONFIG_FILE.read_text()

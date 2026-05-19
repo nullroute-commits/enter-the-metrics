@@ -252,7 +252,7 @@ chown -R grafana:grafana /usr/share/grafana
 
 If you've already run `docker compose up` on this repository, there will be some data files created that will persist your current state. If you want to start from a clean slate do the following:
 
-1. `docker compose down -v`
+1. `docker compose down -v` (this intentionally removes the Prometheus and Loki named volumes as part of the reset)
 1. Delete the `grafana/data/grafana.db` file (`rm grafana/data/grafana.db`)
 
 Now you should be able to run up the stack again and start with the defaults:
