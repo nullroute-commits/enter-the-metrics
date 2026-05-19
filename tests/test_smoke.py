@@ -1,3 +1,4 @@
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -28,6 +29,13 @@ REQUIRED_FILES = [
 
 
 class ComposeSmokeTests(unittest.TestCase):
+    def read_service_block(self, service_name: str) -> str:
+        compose_text = DOCKER_COMPOSE_FILE.read_text()
+        pattern = rf"(?ms)^  {re.escape(service_name)}:\n(?P<body>(?:^(?:    ).*\n?)*)"
+        match = re.search(pattern, compose_text)
+        self.assertIsNotNone(match, f"Service block not found: {service_name}")
+        return match.group("body")
+
     def run_compose(self, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(
             ["docker", "compose", *args],
@@ -66,9 +74,7 @@ class ComposeSmokeTests(unittest.TestCase):
         self.assertIn("path_prefix: /loki", LOKI_CONFIG_FILE.read_text())
 
     def test_snmp_exporter_shares_the_stack_network(self) -> None:
-        compose_text = DOCKER_COMPOSE_FILE.read_text()
-        snmp_exporter_block = compose_text.split("  snmp-exporter:\n", maxsplit=1)[1]
-        snmp_exporter_block = snmp_exporter_block.split("\n  cadvisor:\n", maxsplit=1)[0]
+        snmp_exporter_block = self.read_service_block("snmp-exporter")
         self.assertIn("networks:\n      loki: null", snmp_exporter_block)
 
     def test_prometheus_scrapes_core_services(self) -> None:

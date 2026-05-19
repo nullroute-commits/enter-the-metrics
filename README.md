@@ -54,7 +54,7 @@ This validates:
 
 ## AI Agent Source of Truth
 
-This repository tracks `/home/runner/work/enter-the-metrics/enter-the-metrics/agent.md` as its local AI skill registry and points at [`nullroute-commits/agency-agents`](https://github.com/nullroute-commits/agency-agents) as the upstream source of truth.
+This repository tracks `agent.md` as its local AI skill registry and points at [`nullroute-commits/agency-agents`](https://github.com/nullroute-commits/agency-agents) as the upstream source of truth.
 
 For GitHub Copilot, the upstream agents can be installed directly with the upstream integration flow documented in `agency-agents/integrations/github-copilot/README.md`, which copies selected `.md` agent files into `~/.github/agents/` and `~/.copilot/agents/`.
 
