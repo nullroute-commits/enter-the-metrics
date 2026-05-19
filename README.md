@@ -49,6 +49,14 @@ This validates:
 - compose configuration integrity
 - expected service definitions
 - presence of required local configuration files
+- persistence and network wiring for core observability services
+- upstream AI agent source-of-truth registration
+
+## AI Agent Source of Truth
+
+This repository tracks `agent.md` as its local AI skill registry and points at [`nullroute-commits/agency-agents`](https://github.com/nullroute-commits/agency-agents) as the upstream source of truth.
+
+For GitHub Copilot, the upstream agents can be installed directly with the upstream integration flow documented in `agency-agents/integrations/github-copilot/README.md`, which copies selected `.md` agent files into `~/.github/agents/` and `~/.copilot/agents/`.
 
 ## Login
 
@@ -176,6 +184,8 @@ This repository includes GitHub Actions workflows for continuous integration and
 - **CI** (`.github/workflows/ci.yml`): Runs on every push and pull request to `main`. Validates the Docker Compose configuration and runs the smoke test suite inside a `docker:cli` container.
 - **Deploy** (`.github/workflows/deploy.yml`): Runs automatically on push to `main` or can be triggered manually. Uses a `docker:cli` container to sync stack files to the remote host via `rsync` over SSH and deploys with `docker compose up`.
 
+Prometheus and Loki now store runtime data in Docker-managed named volumes so metrics and log data survive container recreation without requiring extra bind-mounted data directories.
+
 ### Deployment Setup
 
 To enable automated deployments, configure the following secrets in your GitHub repository settings (**Settings → Secrets and variables → Actions**):
@@ -242,7 +252,7 @@ chown -R grafana:grafana /usr/share/grafana
 
 If you've already run `docker compose up` on this repository, there will be some data files created that will persist your current state. If you want to start from a clean slate do the following:
 
-1. `docker compose down`
+1. `docker compose down -v` (this intentionally removes the Prometheus and Loki named volumes as part of the reset)
 1. Delete the `grafana/data/grafana.db` file (`rm grafana/data/grafana.db`)
 
 Now you should be able to run up the stack again and start with the defaults:
