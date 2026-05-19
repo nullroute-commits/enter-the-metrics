@@ -1,6 +1,10 @@
 networks:
   loki: {}
 
+volumes:
+  loki-data: {}
+  prometheus-data: {}
+
 services:
 
   grafana:
@@ -45,6 +49,7 @@ services:
     restart: always
     volumes:
     - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - prometheus-data:/prometheus
 
   loki:
     command: -config.file=/etc/loki/loki-config.yml
@@ -60,6 +65,7 @@ services:
     restart: always
     volumes:
     - ./loki/config/loki-config.yml:/etc/loki/loki-config.yml:ro
+    - loki-data:/loki
 
   alloy:
     command:
@@ -126,6 +132,8 @@ services:
     container_name: snmp-exporter
     image: prom/snmp-exporter:v0.30.1
     pull_policy: always
+    networks:
+      loki: null
     volumes:
     - ./snmp-exporter/config:/config
     command:
